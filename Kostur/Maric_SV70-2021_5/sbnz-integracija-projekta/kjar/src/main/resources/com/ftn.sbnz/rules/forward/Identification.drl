@@ -1,0 +1,58 @@
+package com.ftn.sbnz.rules;
+
+import com.ftn.sbnz.model.models.Mineral;
+import com.ftn.sbnz.model.models.Sample;
+import com.ftn.sbnz.model.models.IdentificationResult;
+import java.util.List;
+
+global List<IdentificationResult> results;
+
+rule "Initialize result for each mineral"
+    salience 100
+    when
+        $m: Mineral()
+    then
+        IdentificationResult result = new IdentificationResult($m);
+        results.add(result);
+        // Insert the newly created result into working memory
+        drools.insert(result);
+end
+
+rule "Color match"
+    salience 50
+    when
+        $s: Sample($color: color != null)
+        $m: Mineral(colors contains $color)
+        $r: IdentificationResult(mineral == $m)
+    then
+        modify($r) {
+            setScore($r.getScore() + 25)
+        }
+        System.out.println("Added 25 points for color to mineral: " + $m.getName());
+end
+
+rule "Luster match"
+    salience 40
+    when
+        $s: Sample($luster: luster != null)
+        $m: Mineral(luster == $luster)
+        $r: IdentificationResult(mineral == $m)
+    then
+        modify($r) {
+            setScore($r.getScore() + 15)
+        }
+        System.out.println("Added 15 points for luster to mineral: " + $m.getName());
+end
+
+rule "Bonus for known location"
+    salience 30
+    when
+        $s: Sample($location: location != null)
+        $m: Mineral(locations contains $location)
+        $r: IdentificationResult(mineral == $m)
+    then
+        modify($r) {
+            setScore($r.getScore() + 40)
+        }
+        System.out.println("Added a large bonus (40 points) for location to mineral: " + $m.getName());
+end
