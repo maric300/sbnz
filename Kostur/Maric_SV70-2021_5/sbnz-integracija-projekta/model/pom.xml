@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- 1. Povezujemo se na glavni (root) pom.xml -->
+	<parent>
+		<groupId>com.ftn.sbnz</groupId>
+		<artifactId>sbnz-integracija-projekta</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<!-- Definišemo samo artifactId za ovaj modul -->
+	<artifactId>model</artifactId>
+	<name>model</name>
+	<description>Modul koji sadrži domenske klase i dogadjaje.</description>
+
+	<!--
+        NAPOMENA:
+        groupId, version, properties i stari parent su obrisani jer se nasleđuju.
+        spring-boot-maven-plugin je takođe obrisan jer ovaj modul nije izvršna aplikacija.
+        Drools zavisnosti su uklonjene jer model klase ne moraju da znaju za Drools.
+    -->
+
+	<dependencies>
+		<!-- Zavisnost je potrebna samo za testiranje -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.kie</groupId>
+			<artifactId>kie-api</artifactId>
+			<version>9.44.0.Final</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+</project>
