@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kmodule xmlns="http://www.drools.org/xsd/kmodule">
-    <kbase name="rulesKBase">
+
+    <kbase name="rulesKBase" packages="com.ftn.sbnz.rules.forward">
         <ksession name="rulesKSession" default="true"/>
     </kbase>
+
+    <kbase name="cepKBase" eventProcessingMode="stream" packages="com.ftn.sbnz.rules.cep">
+        <ksession name="cepKieSession"/>
+    </kbase>
+
 </kmodule>
+

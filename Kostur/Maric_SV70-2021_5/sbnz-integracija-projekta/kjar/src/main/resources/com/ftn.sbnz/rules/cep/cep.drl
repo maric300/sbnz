@@ -1,1 +1,27 @@
-package cep;
+package com.ftn.sbnz.rules.cep;
+
+import com.ftn.sbnz.model.events.PotentialDiscoveryEvent;
+import java.util.List;
+
+rule "Detect Undocumented Hotspot"
+    no-loop true
+    when
+        $events: List(size >= 5) from accumulate (
+            $e: PotentialDiscoveryEvent() over window:time(45d),
+            collectList($e)
+        )
+        Boolean(booleanValue == true) from com.ftn.sbnz.model.utils.CepHelper.isValidHotspot($events)
+    then
+        PotentialDiscoveryEvent firstEvent = (PotentialDiscoveryEvent) $events.get(0);
+        System.out.println("-----------------------------------------------------------------");
+        System.out.println("!!! UPOZORENJE ADMINISTRATORU: DETEKTOVAN NOVI HOTSPOT !!!");
+        System.out.println("Mineral: " + firstEvent.getMineralName());
+        System.out.println("Lokacija: " + firstEvent.getLocation());
+        System.out.println("Broj prijava u poslednjih 45 dana: " + $events.size());
+        System.out.println("-----------------------------------------------------------------");
+
+        for(Object event : $events){
+            drools.delete(event);
+        }
+end
+
