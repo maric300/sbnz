@@ -1,5 +1,7 @@
 package com.ftn.sbnz.model.models;
 
+import com.ftn.sbnz.model.enums.Accessibility;
+import com.ftn.sbnz.model.enums.Difficulty;
 import com.ftn.sbnz.model.enums.Luster;
 import com.ftn.sbnz.model.enums.Transparency;
 
@@ -18,6 +20,8 @@ public class Mineral {
     private String streakColor;
     private List<String> rockTypes;
     private List<String> locations;
+    private Accessibility accessibility;
+    private Difficulty difficulty;
 
     public Mineral() {
         this.colors = new ArrayList<>();
@@ -25,7 +29,7 @@ public class Mineral {
         this.locations = new ArrayList<>();
     }
 
-    public Mineral(Long id, String name, List<String> colors, Transparency transparency, Luster luster, double hardnessMin, double hardnessMax, String streakColor, List<String> rockTypes, List<String> locations) {
+    public Mineral(Long id, String name, List<String> colors, Transparency transparency, Luster luster, double hardnessMin, double hardnessMax, String streakColor, List<String> rockTypes, List<String> locations, Accessibility accessibility, Difficulty difficulty) {
         this.id = id;
         this.name = name;
         this.colors = colors;
@@ -36,6 +40,8 @@ public class Mineral {
         this.streakColor = streakColor;
         this.rockTypes = rockTypes;
         this.locations = locations;
+        this.accessibility = accessibility;
+        this.difficulty = difficulty;
     }
 
     public Long getId() {
@@ -116,6 +122,22 @@ public class Mineral {
 
     public void setLocations(List<String> locations) {
         this.locations = locations;
+    }
+
+    public Accessibility getAccessibility() {
+        return accessibility;
+    }
+
+    public void setAccessibility(Accessibility accessibility) {
+        this.accessibility = accessibility;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 
     @Override
