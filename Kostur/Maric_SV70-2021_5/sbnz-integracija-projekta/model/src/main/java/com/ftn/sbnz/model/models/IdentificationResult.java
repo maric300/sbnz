@@ -4,16 +4,19 @@ public class IdentificationResult {
     private Mineral mineral;
     private int score;
     private String message;
+    private boolean isPrimaryCandidate;
+    private double matchPercentage;
 
     public IdentificationResult() {
         this.score = 0;
-        this.message = "Base match.";
+        this.isPrimaryCandidate = false;
+        this.matchPercentage = 0.0;
+        this.message = "Početno stanje.";
     }
 
     public IdentificationResult(Mineral mineral) {
+        this();
         this.mineral = mineral;
-        this.score = 0;
-        this.message = "Base match.";
     }
 
     public Mineral getMineral() {
@@ -38,6 +41,22 @@ public class IdentificationResult {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public boolean isPrimaryCandidate() {
+        return isPrimaryCandidate;
+    }
+
+    public void setPrimaryCandidate(boolean primaryCandidate) {
+        isPrimaryCandidate = primaryCandidate;
+    }
+
+    public double getMatchPercentage() {
+        return matchPercentage;
+    }
+
+    public void setMatchPercentage(double matchPercentage) {
+        this.matchPercentage = matchPercentage;
     }
 
     @Override
