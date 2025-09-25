@@ -1,11 +1,16 @@
-package com.ftn.sbnz.rules;
+package com.ftn.sbnz.rules.forward;
 
 import com.ftn.sbnz.model.models.Mineral;
 import com.ftn.sbnz.model.models.Sample;
 import com.ftn.sbnz.model.models.IdentificationResult;
+import com.ftn.sbnz.model.events.PotentialDiscoveryEvent;
+import org.kie.api.runtime.KieSession; // Importujemo KieSession
 import java.util.List;
 
-global List<IdentificationResult> results;
+global java.util.List results;
+global KieSession cepSession;
+
+dialect "mvel"
 
 rule "Initialize result for each mineral"
     salience 100
@@ -14,45 +19,96 @@ rule "Initialize result for each mineral"
     then
         IdentificationResult result = new IdentificationResult($m);
         results.add(result);
-        // Insert the newly created result into working memory
         drools.insert(result);
 end
 
 rule "Color match"
     salience 50
     when
-        $s: Sample($color: color != null)
-        $m: Mineral(colors contains $color)
+        $s: Sample(color != null)
+        $m: Mineral(colors contains $s.color)
         $r: IdentificationResult(mineral == $m)
     then
-        modify($r) {
-            setScore($r.getScore() + 25)
-        }
-        System.out.println("Added 25 points for color to mineral: " + $m.getName());
+        modify($r) { setScore($r.getScore() + 25) };
 end
 
 rule "Luster match"
     salience 40
     when
-        $s: Sample($luster: luster != null)
-        $m: Mineral(luster == $luster)
+        $s: Sample(luster != null)
+        $m: Mineral(luster == $s.luster)
         $r: IdentificationResult(mineral == $m)
     then
-        modify($r) {
-            setScore($r.getScore() + 15)
-        }
-        System.out.println("Added 15 points for luster to mineral: " + $m.getName());
+        modify($r) { setScore($r.getScore() + 15) };
 end
 
-rule "Bonus for known location"
+rule "Transparency match"
+    salience 40
+    when
+        $s: Sample(transparency != null)
+        $m: Mineral(transparency == $s.transparency)
+        $r: IdentificationResult(mineral == $m)
+    then
+        modify($r) { setScore($r.getScore() + 15) };
+end
+
+rule "Rock Type match"
+    salience 35
+    when
+        $s: Sample(rockType != null)
+        $m: Mineral(rockTypes contains $s.rockType)
+        $r: IdentificationResult(mineral == $m)
+    then
+        modify($r) { setScore($r.getScore() + 20) };
+end
+
+rule "Mark Primary Candidate and Add Location Bonus"
     salience 30
     when
-        $s: Sample($location: location != null)
-        $m: Mineral(locations contains $location)
+        $s: Sample(location != null)
+        $m: Mineral(locations contains $s.location)
         $r: IdentificationResult(mineral == $m)
     then
         modify($r) {
-            setScore($r.getScore() + 40)
-        }
-        System.out.println("Added a large bonus (40 points) for location to mineral: " + $m.getName());
+            setScore($r.getScore() + 40),
+            setPrimaryCandidate(true)
+        };
 end
+
+rule "Set Message for Standard Identification"
+    salience -10
+    when
+        $r: IdentificationResult(primaryCandidate == true, $m: mineral)
+    then
+        modify($r) {
+            setMessage("Identifikacija je potkrepljena poklapanjem vizuelnih karakteristika i poznatog nalazišta na lokaciji " + $m.getLocations() + ".")
+        };
+end
+
+rule "Detect Potential New Discovery"
+    salience -20
+    when
+        $s: Sample($loc: location)
+        $r: IdentificationResult(
+            primaryCandidate == false,
+            $m: mineral,
+            $score: score >= 50
+         )
+    then
+        modify($r) {
+            setMessage("Vaš uzorak se po karakteristikama savršeno poklapa sa mineralom " + $m.getName() + ", koji do sada nije bio dokumentovan na području " + $loc + ". Ovo bi moglo predstavljati novo nalazište.")
+        };
+        long mockUserId = (long) (Math.random() * 100);
+        cepSession.insert(new PotentialDiscoveryEvent($m.getId(), $m.getName(), $loc, mockUserId));
+end
+
+rule "Calculate Percentage"
+    salience -100
+    when
+        $r: IdentificationResult(score > 0)
+    then
+        modify($r) {
+            setMatchPercentage(($r.getScore() / 115.0) * 100.0)
+        };
+end
+
