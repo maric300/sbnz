@@ -1,4 +1,4 @@
-package com.ftn.sbnz.service.services;
+package com.ftn.sbnz.service.services.interfaces;
 
 import com.ftn.sbnz.model.models.IdentificationResult;
 import com.ftn.sbnz.model.models.Mineral;

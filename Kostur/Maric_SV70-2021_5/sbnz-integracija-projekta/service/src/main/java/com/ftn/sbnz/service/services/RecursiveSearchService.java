@@ -1,7 +1,7 @@
 package com.ftn.sbnz.service.services;
 
 import com.ftn.sbnz.model.models.Mineral;
-import com.ftn.sbnz.model.models.MineralHierarchyFact;
+import com.ftn.sbnz.model.models.MineralHierarchy;
 import com.ftn.sbnz.model.models.RecursiveSearchQuery;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -15,12 +15,12 @@ import java.util.List;
 public class RecursiveSearchService {
 
     private final KieContainer kieContainer;
-    private final IIdentificationService identificationService;
+    private final MineralService mineralService; // Novi servis za pristup bazi
 
     @Autowired
-    public RecursiveSearchService(KieContainer kieContainer, IIdentificationService identificationService) {
+    public RecursiveSearchService(KieContainer kieContainer, MineralService mineralService) {
         this.kieContainer = kieContainer;
-        this.identificationService = identificationService;
+        this.mineralService = mineralService; // Injektujemo novi servis
     }
 
     public List<Mineral> searchByGroup(RecursiveSearchQuery query) {
@@ -31,13 +31,13 @@ public class RecursiveSearchService {
 
         kieSession.insert(query);
 
-        // --- ČINJENICE o JEDNOSMERNOJ HIJERARHIJI ---
-        kieSession.insert(new MineralHierarchyFact("Amethyst (Quartz)", "Kvarc"));
-        kieSession.insert(new MineralHierarchyFact("Rock Crystal (Quartz)", "Kvarc"));
-        kieSession.insert(new MineralHierarchyFact("Serpentine", "Silikati"));
-        kieSession.insert(new MineralHierarchyFact("Kvarc", "Silikati")); // Veza u 2 koraka
+        // Čitamo hijerarhiju iz baze
+        for (MineralHierarchy fact : mineralService.findAllHierarchyFacts()) {
+            kieSession.insert(fact);
+        }
 
-        for (Mineral mineral : identificationService.getMineralDatabase()) {
+        // Čitamo minerale iz baze
+        for (Mineral mineral : mineralService.findAllMinerals()) {
             kieSession.insert(mineral);
         }
 

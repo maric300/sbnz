@@ -1,19 +1,15 @@
 package com.ftn.sbnz.service.services;
 
-import com.ftn.sbnz.model.enums.Accessibility;
-import com.ftn.sbnz.model.enums.Difficulty;
-import com.ftn.sbnz.model.enums.Luster;
-import com.ftn.sbnz.model.enums.Transparency;
-import com.ftn.sbnz.model.models.Mineral;
 import com.ftn.sbnz.model.models.IdentificationResult;
+import com.ftn.sbnz.model.models.Mineral;
 import com.ftn.sbnz.model.models.Sample;
+import com.ftn.sbnz.service.services.interfaces.IIdentificationService;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,10 +19,12 @@ public class IdentificationService implements IIdentificationService {
 
     private final KieContainer kieContainer;
     private final KieSession cepKieSession;
+    private final MineralService mineralService; // Novi servis za pristup bazi
 
     @Autowired
-    public IdentificationService(KieContainer kieContainer) {
+    public IdentificationService(KieContainer kieContainer, MineralService mineralService) {
         this.kieContainer = kieContainer;
+        this.mineralService = mineralService; // Injektujemo novi servis
         this.cepKieSession = kieContainer.newKieSession("cepKieSession");
     }
 
@@ -38,14 +36,15 @@ public class IdentificationService implements IIdentificationService {
         identificationSession.setGlobal("cepSession", this.cepKieSession);
 
         identificationSession.insert(sample);
-        for (Mineral mineral : this.getMineralDatabase()) {
+        // Čitamo minerale iz baze umesto iz mock liste
+        for (Mineral mineral : this.mineralService.findAllMinerals()) {
             identificationSession.insert(mineral);
         }
 
         System.out.println("Firing identification rules...");
         identificationSession.fireAllRules();
         System.out.println("Identification rules have been fired.");
-        identificationSession.dispose(); // Uništavamo privremenu sesiju
+        identificationSession.dispose();
 
         new Thread(() -> {
             System.out.println("Firing CEP rules in the background...");
@@ -57,19 +56,9 @@ public class IdentificationService implements IIdentificationService {
                 .collect(Collectors.toList());
     }
 
-    // Mock baza podataka
+    // Ovu metodu sada poziva RecursiveSearchService
+    @Override
     public List<Mineral> getMineralDatabase() {
-        return Arrays.asList(
-                new Mineral(1L, "Serpentine", Arrays.asList("green", "black"), Transparency.TRANSLUCENT, Luster.GREASY, 2.5, 4.0, "white", Arrays.asList("serpentinite"), Arrays.asList("Zlatibor", "Kopaonik"), Accessibility.ON_FOOT, Difficulty.MEDIUM),
-                new Mineral(2L, "Malachite", Arrays.asList("green"), Transparency.OPAQUE, Luster.GLASSY, 3.5, 4.0, "green", Arrays.asList("limestone"), Arrays.asList("Rudnik"), Accessibility.BY_CAR, Difficulty.MEDIUM),
-                new Mineral(3L, "Amethyst (Quartz)", Arrays.asList("purple"), Transparency.TRANSPARENT, Luster.GLASSY, 7.0, 7.0, "white", Arrays.asList("volcanic rock"), Arrays.asList("Fruška gora"), Accessibility.BY_CAR, Difficulty.HARD),
-                // ISPRAVKA: Dodajemo "Fruška gora" kao lokaciju za Gorski kristal
-                new Mineral(4L, "Rock Crystal (Quartz)", Arrays.asList("colorless"), Transparency.TRANSPARENT, Luster.GLASSY, 7.0, 7.0, "white", Arrays.asList("granite", "pegmatite"), Arrays.asList("Kopaonik", "Fruška gora"), Accessibility.BY_CAR, Difficulty.MEDIUM),
-                new Mineral(5L, "Magnezit", Arrays.asList("white", "grey"), Transparency.OPAQUE, Luster.DULL, 3.5, 4.5, "white", Arrays.asList("serpentinite"), Arrays.asList("Zlatibor"), Accessibility.ON_FOOT, Difficulty.MEDIUM),
-                new Mineral(6L, "Hromit", Arrays.asList("black"), Transparency.OPAQUE, Luster.METALLIC, 5.5, 5.5, "brown", Arrays.asList("serpentinite"), Arrays.asList("Zlatibor"), Accessibility.ON_FOOT, Difficulty.HARD)
-        );
+        return this.mineralService.findAllMinerals();
     }
 }
-//MineralHierarchyFact
-//RecursiveSearchQuery
-//SearchResponse
