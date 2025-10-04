@@ -19,6 +19,8 @@ public class IdentificationResult {
         this.mineral = mineral;
     }
 
+    // ... (ostali getteri i setteri ostaju isti) ...
+
     public Mineral getMineral() {
         return mineral;
     }
@@ -59,11 +61,15 @@ public class IdentificationResult {
         this.matchPercentage = matchPercentage;
     }
 
+
     @Override
     public String toString() {
+        // ISPRAVKA: Proveravamo da li je 'mineral' null pre poziva getName()
+        String mineralName = (this.mineral != null) ? this.mineral.getName() : "N/A";
         return "IdentificationResult{" +
-                "mineral=" + mineral.getName() +
+                "mineral=" + mineralName +
                 ", score=" + score +
                 '}';
     }
 }
+

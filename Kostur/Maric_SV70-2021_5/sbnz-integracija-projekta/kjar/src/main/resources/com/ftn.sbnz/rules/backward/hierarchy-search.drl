@@ -1,7 +1,7 @@
 package com.ftn.sbnz.rules.backward;
 
 import com.ftn.sbnz.model.models.Mineral;
-import com.ftn.sbnz.model.models.MineralHierarchyFact;
+import com.ftn.sbnz.model.models.MineralHierarchy;
 import com.ftn.sbnz.model.models.RecursiveSearchQuery;
 import java.util.List;
 
@@ -9,10 +9,10 @@ global java.util.List recommendations;
 
 query isMemberOfGroup(String subType, String superType)
     // base case
-    MineralHierarchyFact(subType, superType;)
+    MineralHierarchy(subType, superType;)
     or
     (
-        MineralHierarchyFact(subType, $intermediate;) and
+        MineralHierarchy(subType, $intermediate;) and
         isMemberOfGroup($intermediate, superType;)
     )
 end

@@ -1,24 +1,35 @@
 package com.ftn.sbnz.model.models;
 
+import jakarta.persistence.*;
 import org.kie.api.definition.type.Position;
-import java.io.Serializable;
 
-/**
- * Jednostavna klasa koja predstavlja jednu vezu u hijerarhiji.
- * Npr. "Ametist" (subType) je član "Kvarc" (superType).
- * Anotacije @Position su ključne za ispravan rad query-ja.
- */
-public class MineralHierarchyFact implements Serializable {
+import java.util.UUID;
 
+@Entity
+public class MineralHierarchy {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     @Position(0)
+    @Column(nullable = false)
     private String subType;
 
     @Position(1)
+    @Column(nullable = false)
     private String superType;
 
-    public MineralHierarchyFact(String subType, String superType) {
-        this.subType = subType;
-        this.superType = superType;
+    // --- KONSTRUKTORI ---
+    public MineralHierarchy() {}
+
+    // --- RUČNO NAPISANI GETTERI I SETTERI ---
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getSubType() {
