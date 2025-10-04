@@ -1,0 +1,29 @@
+.input-style {
+  background-color: #1F2937; /* bg-gray-800 */
+  border: 1px solid #4B5563; /* border-gray-600 */
+  color: #D1D5DB; /* text-gray-300 */
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.input-style:focus {
+  outline: none;
+  border-color: #2DD4BF; /* border-teal-500 */
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.5);
+}
+.submit-button {
+  background-color: #14B8A6; /* bg-teal-600 */
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s;
+}
+.submit-button:hover:not(:disabled) {
+  background-color: #0D9488; /* bg-teal-700 */
+}
+.submit-button:disabled {
+  background-color: #374151; /* bg-gray-700 */
+  cursor: not-allowed;
+}
