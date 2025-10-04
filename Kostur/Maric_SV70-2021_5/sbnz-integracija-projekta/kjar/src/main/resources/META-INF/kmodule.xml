@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kmodule xmlns="http://www.drools.org/xsd/kmodule">
 
-    <kbase name="rulesKBase" packages="com.ftn.sbnz.rules.forward">
+    <!-- Baza znanja za Forward Chaining i CEP. -->
+    <kbase name="rulesKBase" eventProcessingMode="stream" packages="com.ftn.sbnz.rules.forward, com.ftn.sbnz.rules.cep">
         <ksession name="rulesKSession" default="true"/>
-    </kbase>
-
-    <kbase name="cepKBase" eventProcessingMode="stream" packages="com.ftn.sbnz.rules.cep">
         <ksession name="cepKieSession"/>
     </kbase>
 
-</kmodule>
+    <!-- BAZA ZNANJA za Rekurzivni Backward Chaining. -->
+    <kbase name="backwardKBase" packages="com.ftn.sbnz.rules.backward">
+        <ksession name="backwardKSession"/>
+    </kbase>
 
+</kmodule>
