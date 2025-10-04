@@ -1,6 +1,8 @@
 package com.ftn.sbnz.model.models;
 
 import jakarta.persistence.*;
+import org.kie.api.definition.type.Position;
+
 import java.util.UUID;
 
 @Entity
@@ -9,10 +11,11 @@ public class MineralHierarchy {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-
+    @Position(0)
     @Column(nullable = false)
     private String subType;
 
+    @Position(1)
     @Column(nullable = false)
     private String superType;
 
