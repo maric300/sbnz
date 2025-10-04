@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class IdentificationService {
+public class IdentificationService implements IIdentificationService {
 
     private final KieContainer kieContainer;
     private final KieSession cepKieSession;
@@ -58,13 +58,18 @@ public class IdentificationService {
     }
 
     // Mock baza podataka
-    private List<Mineral> getMineralDatabase() {
+    public List<Mineral> getMineralDatabase() {
         return Arrays.asList(
                 new Mineral(1L, "Serpentine", Arrays.asList("green", "black"), Transparency.TRANSLUCENT, Luster.GREASY, 2.5, 4.0, "white", Arrays.asList("serpentinite"), Arrays.asList("Zlatibor", "Kopaonik"), Accessibility.ON_FOOT, Difficulty.MEDIUM),
                 new Mineral(2L, "Malachite", Arrays.asList("green"), Transparency.OPAQUE, Luster.GLASSY, 3.5, 4.0, "green", Arrays.asList("limestone"), Arrays.asList("Rudnik"), Accessibility.BY_CAR, Difficulty.MEDIUM),
                 new Mineral(3L, "Amethyst (Quartz)", Arrays.asList("purple"), Transparency.TRANSPARENT, Luster.GLASSY, 7.0, 7.0, "white", Arrays.asList("volcanic rock"), Arrays.asList("Fruška gora"), Accessibility.BY_CAR, Difficulty.HARD),
-                new Mineral(4L, "Rock Crystal (Quartz)", Arrays.asList("colorless"), Transparency.TRANSPARENT, Luster.GLASSY, 7.0, 7.0, "white", Arrays.asList("granite", "pegmatite"), Arrays.asList("Kopaonik"),Accessibility.BY_CAR, Difficulty.MEDIUM)
+                // ISPRAVKA: Dodajemo "Fruška gora" kao lokaciju za Gorski kristal
+                new Mineral(4L, "Rock Crystal (Quartz)", Arrays.asList("colorless"), Transparency.TRANSPARENT, Luster.GLASSY, 7.0, 7.0, "white", Arrays.asList("granite", "pegmatite"), Arrays.asList("Kopaonik", "Fruška gora"), Accessibility.BY_CAR, Difficulty.MEDIUM),
+                new Mineral(5L, "Magnezit", Arrays.asList("white", "grey"), Transparency.OPAQUE, Luster.DULL, 3.5, 4.5, "white", Arrays.asList("serpentinite"), Arrays.asList("Zlatibor"), Accessibility.ON_FOOT, Difficulty.MEDIUM),
+                new Mineral(6L, "Hromit", Arrays.asList("black"), Transparency.OPAQUE, Luster.METALLIC, 5.5, 5.5, "brown", Arrays.asList("serpentinite"), Arrays.asList("Zlatibor"), Accessibility.ON_FOOT, Difficulty.HARD)
         );
     }
 }
-
+//MineralHierarchyFact
+//RecursiveSearchQuery
+//SearchResponse
