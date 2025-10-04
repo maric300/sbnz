@@ -5,26 +5,28 @@ import org.kie.api.definition.type.Timestamp;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID; // ISPRAVKA: Importujemo UUID
 
-// Definišemo klasu kao event za CEP
 @Role(Role.Type.EVENT)
-// Definišemo koje polje predstavlja vremensku oznaku događaja
 @Timestamp("timestamp")
 public class PotentialDiscoveryEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Date timestamp;
-    private Long mineralId;
+
+    // ISPRAVKA: Tip je sada UUID
+    private UUID mineralId;
+
     private String mineralName;
     private String location;
     private Long userId;
 
     public PotentialDiscoveryEvent() {
-        super();
+        this.timestamp = new Date();
     }
 
-    public PotentialDiscoveryEvent(Long mineralId, String mineralName, String location, Long userId) {
-        super();
+    // ISPRAVKA: Konstruktor sada prihvata UUID
+    public PotentialDiscoveryEvent(UUID mineralId, String mineralName, String location, Long userId) {
         this.timestamp = new Date();
         this.mineralId = mineralId;
         this.mineralName = mineralName;
@@ -32,43 +34,16 @@ public class PotentialDiscoveryEvent implements Serializable {
         this.userId = userId;
     }
 
-    public Date getTimestamp() {
-        return timestamp;
-    }
+    // --- Getteri i Setteri ---
 
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Long getMineralId() {
-        return mineralId;
-    }
-
-    public void setMineralId(Long mineralId) {
-        this.mineralId = mineralId;
-    }
-
-    public String getMineralName() {
-        return mineralName;
-    }
-
-    public void setMineralName(String mineralName) {
-        this.mineralName = mineralName;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+    public Date getTimestamp() { return timestamp; }
+    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
+    public UUID getMineralId() { return mineralId; }
+    public void setMineralId(UUID mineralId) { this.mineralId = mineralId; }
+    public String getMineralName() { return mineralName; }
+    public void setMineralName(String mineralName) { this.mineralName = mineralName; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 }

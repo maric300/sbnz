@@ -4,51 +4,63 @@ import com.ftn.sbnz.model.enums.Accessibility;
 import com.ftn.sbnz.model.enums.Difficulty;
 import com.ftn.sbnz.model.enums.Luster;
 import com.ftn.sbnz.model.enums.Transparency;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
+@Entity
 public class Mineral {
-    private Long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
+    @Column(nullable = false, unique = true)
     private String name;
-    private List<String> colors;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> colors = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
     private Transparency transparency;
+
+    @Enumerated(EnumType.STRING)
     private Luster luster;
+
     private double hardnessMin;
     private double hardnessMax;
     private String streakColor;
-    private List<String> rockTypes;
-    private List<String> locations;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> rockTypes = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> locations = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
     private Accessibility accessibility;
+
+    @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
-    public Mineral() {
-        this.colors = new ArrayList<>();
-        this.rockTypes = new ArrayList<>();
-        this.locations = new ArrayList<>();
-    }
+    // --- KONSTRUKTORI ---
+    public Mineral() {}
 
-    public Mineral(Long id, String name, List<String> colors, Transparency transparency, Luster luster, double hardnessMin, double hardnessMax, String streakColor, List<String> rockTypes, List<String> locations, Accessibility accessibility, Difficulty difficulty) {
-        this.id = id;
-        this.name = name;
-        this.colors = colors;
-        this.transparency = transparency;
-        this.luster = luster;
-        this.hardnessMin = hardnessMin;
-        this.hardnessMax = hardnessMax;
-        this.streakColor = streakColor;
-        this.rockTypes = rockTypes;
-        this.locations = locations;
-        this.accessibility = accessibility;
-        this.difficulty = difficulty;
-    }
+    // --- RUČNO NAPISANI GETTERI I SETTERI ---
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -140,24 +152,17 @@ public class Mineral {
         this.difficulty = difficulty;
     }
 
+
     @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Mineral mineral = (Mineral) object;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Mineral mineral = (Mineral) o;
         return Objects.equals(id, mineral.id);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Mineral{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
     }
 }
