@@ -2,7 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 // Novi importi za modele formi
 import { IdentificationSample } from '../../models/identification-sample.model';
@@ -13,11 +13,12 @@ import {Mineral} from "../../models/mineral";
 import {Transparency} from "../../enums/transparency";
 import {Luster} from "../../enums/luster";
 import {NotificationService} from "../../services/notification.service";
+import {MineralListComponent} from "../mineral-list/mineral-list.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, MineralListComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
