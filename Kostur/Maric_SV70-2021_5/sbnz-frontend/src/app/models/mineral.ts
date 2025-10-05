@@ -1,5 +1,6 @@
 import {Transparency} from "../enums/transparency";
 import {Luster} from "../enums/luster";
+import {SeasonalTip} from "./seasonal-tip.model";
 
 export interface Mineral {
   id: string; // UUID je string na frontendu
@@ -14,4 +15,7 @@ export interface Mineral {
   locations: string[];
   accessibility: string; // TODO: Pretvoriti u Accessibility enum
   difficulty: string;    // TODO: Pretvoriti u Difficulty enum
+  seasonalTips: SeasonalTip[];
+
 }
+

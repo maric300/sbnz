@@ -1,5 +1,6 @@
 package com.ftn.sbnz.model.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ftn.sbnz.model.enums.Accessibility;
 import com.ftn.sbnz.model.enums.Difficulty;
 import com.ftn.sbnz.model.enums.Luster;
@@ -8,10 +9,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+
+import java.util.*;
 
 @Entity
 public class Mineral {
@@ -51,10 +50,13 @@ public class Mineral {
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
-    // --- KONSTRUKTORI ---
+    @OneToMany(mappedBy = "mineral", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private Set<SeasonalTip> seasonalTips = new HashSet<>();
+
+
     public Mineral() {}
 
-    // --- RUČNO NAPISANI GETTERI I SETTERI ---
 
     public UUID getId() {
         return id;
@@ -152,6 +154,13 @@ public class Mineral {
         this.difficulty = difficulty;
     }
 
+    public Set<SeasonalTip> getSeasonalTips() {
+        return seasonalTips;
+    }
+
+    public void setSeasonalTips(Set<SeasonalTip> seasonalTips) {
+        this.seasonalTips = seasonalTips;
+    }
 
     @Override
     public boolean equals(Object o) {
