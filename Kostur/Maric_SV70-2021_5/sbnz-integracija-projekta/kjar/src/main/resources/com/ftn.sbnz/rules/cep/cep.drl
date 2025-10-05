@@ -1,6 +1,8 @@
 package com.ftn.sbnz.rules.cep;
 
 import com.ftn.sbnz.model.events.PotentialDiscoveryEvent;
+import com.ftn.sbnz.model.events.HotspotAlertFired; // Importujemo kontrolnu činjenicu
+import com.ftn.sbnz.model.models.NotificationRequest;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,15 +21,21 @@ rule "Detect Undocumented Hotspot"
             collectList($e)
         )
         eval(com.ftn.sbnz.model.utils.CepHelper.hasEnoughUsersForHotspot($events))
+
+        not HotspotAlertFired(mineralId == $mineralId, location == $location)
     then
         System.out.println("-----------------------------------------------------------------");
         System.out.println("!!! UPOZORENJE ADMINISTRATORU: DETEKTOVAN NOVI HOTSPOT !!!");
         System.out.println("Mineral: " + $trigger.getMineralName());
         System.out.println("Lokacija: " + $trigger.getLocation());
-        System.out.println("Broj prijava u poslednjih 45 dana: " + $events.size());
+        System.out.println("Broj prijava: " + $events.size());
         System.out.println("-----------------------------------------------------------------");
 
-        for(Object event : $events){
-            drools.delete(event);
-        }
+        String message = String.format(
+            "Detektovan novi potencijalni hotspot za mineral '%s' na lokaciji '%s' (%d prijava).",
+            $trigger.getMineralName(), $trigger.getLocation(), $events.size()
+        );
+        drools.insert(new NotificationRequest(message));
+
+        drools.insert(new HotspotAlertFired($trigger.getMineralId(), $trigger.getLocation(), null));
 end
