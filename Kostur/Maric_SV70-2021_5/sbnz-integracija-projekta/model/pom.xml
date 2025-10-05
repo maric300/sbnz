@@ -15,13 +15,6 @@
 	<name>model</name>
 	<description>Modul koji sadrži domenske klase i dogadjaje.</description>
 
-	<!--
-        NAPOMENA:
-        groupId, version, properties i stari parent su obrisani jer se nasleđuju.
-        spring-boot-maven-plugin je takođe obrisan jer ovaj modul nije izvršna aplikacija.
-        Drools zavisnosti su uklonjene jer model klase ne moraju da znaju za Drools.
-    -->
-
 	<dependencies>
 		<!-- Zavisnost je potrebna samo za testiranje -->
 		<dependency>
@@ -48,6 +41,10 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
