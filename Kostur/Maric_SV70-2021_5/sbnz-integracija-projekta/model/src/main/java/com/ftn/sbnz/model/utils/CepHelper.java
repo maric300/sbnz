@@ -1,40 +1,26 @@
 package com.ftn.sbnz.model.utils;
 
+import com.ftn.sbnz.model.events.PotentialCorrectionEvent;
 import com.ftn.sbnz.model.events.PotentialDiscoveryEvent;
 
 import java.util.List;
 
 public class CepHelper {
 
-    /**
-     * Proverava da li lista događaja zadovoljava uslove za novi hotspot.
-     * @param events Lista događaja iz CEP prozora.
-     * @return true ako su svi uslovi zadovoljeni, inače false.
-     */
     public static boolean isValidHotspot(List<PotentialDiscoveryEvent> events) {
-        if (events == null || events.isEmpty()) {
-            return false;
-        }
+        if (events == null || events.isEmpty()) return false;
+        if (events.stream().map(PotentialDiscoveryEvent::getMineralId).distinct().count() != 1) return false;
+        if (events.stream().map(PotentialDiscoveryEvent::getLocation).distinct().count() != 1) return false;
 
-        // Uslov 1: Svi dogadjaji moraju biti za isti mineral
-        boolean sameMineral = events.stream()
-                .map(PotentialDiscoveryEvent::getMineralId)
-                .distinct()
-                .count() == 1;
-        if (!sameMineral) return false;
+        // Ova linija sada ispravno radi sa UUID-jevima
+        return events.stream().map(PotentialDiscoveryEvent::getUserId).distinct().count() >= 3;
+    }
 
-        // Uslov 2: Svi dogadjaji moraju biti za istu lokaciju
-        boolean sameLocation = events.stream()
-                .map(PotentialDiscoveryEvent::getLocation)
-                .distinct()
-                .count() == 1;
-        if (!sameLocation) return false;
-        // Uslov 3: Dogadjaji moraju poticati od najmanje 3 različita korisnika
-        boolean enoughUsers = events.stream()
-                .map(PotentialDiscoveryEvent::getUserId)
-                .distinct()
-                .count() >= 3;
+    public static boolean isValidCorrectionPattern(List<PotentialCorrectionEvent> events) {
+        if (events == null || events.isEmpty()) return false;
+        if (events.stream().map(e -> e.getMineralId().toString() + e.getLocation() + e.getAttributeName() + e.getReportedValue()).distinct().count() != 1) return false;
 
-        return enoughUsers;
+        // Ova linija sada ispravno radi sa UUID-jevima
+        return events.stream().map(PotentialCorrectionEvent::getUserId).distinct().count() >= 5;
     }
 }
