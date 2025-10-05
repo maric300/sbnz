@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kmodule xmlns="http://www.drools.org/xsd/kmodule">
 
-    <!-- Baza znanja za Forward Chaining i CEP. -->
-    <kbase name="rulesKBase" eventProcessingMode="stream" packages="com.ftn.sbnz.rules.forward, com.ftn.sbnz.rules.cep">
+    <!-- BAZA ZNANJA #1: Samo za Forward Chaining (Identifikacija) -->
+    <!-- Radi u podrazumevanom 'cloud' modu. -->
+    <kbase name="rulesKBase" packages="com.ftn.sbnz.rules.forward">
         <ksession name="rulesKSession" default="true"/>
+    </kbase>
+
+    <!-- BAZA ZNANJA #2: Samo za CEP Pravila (Hotspot, Korekcije, Sezone) -->
+    <!-- Mora biti u 'stream' modu. -->
+    <kbase name="cepKBase" eventProcessingMode="stream" packages="com.ftn.sbnz.rules.cep">
         <ksession name="cepKieSession"/>
     </kbase>
 
-    <!-- BAZA ZNANJA za Rekurzivni Backward Chaining. -->
+    <!-- BAZA ZNANJA #3: Za Backward Chaining. -->
     <kbase name="backwardKBase" packages="com.ftn.sbnz.rules.backward">
         <ksession name="backwardKSession"/>
     </kbase>
