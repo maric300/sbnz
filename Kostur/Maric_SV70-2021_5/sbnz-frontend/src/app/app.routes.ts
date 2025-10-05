@@ -5,10 +5,12 @@ import {RegisterComponent} from "./components/register/register.component";
 import {authGuard} from "./guards/auth.guard";
 import {NotificationsComponent} from "./components/notifications/notifications.component";
 import {adminGuard} from "./guards/admin.guard";
+import {MineralDetailsComponent} from "./components/mineral-details/mineral-details.component";
 
 export const routes: Routes = [
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
+  { path: 'mineral/:id', component: MineralDetailsComponent, canActivate: [authGuard] },
 
   {
     path: 'notifications',
