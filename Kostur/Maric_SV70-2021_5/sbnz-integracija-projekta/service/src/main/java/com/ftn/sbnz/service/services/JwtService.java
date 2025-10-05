@@ -1,5 +1,6 @@
 package com.ftn.sbnz.service.services;
 
+import com.ftn.sbnz.model.models.auth.User; // Importujemo vašu User klasu
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -30,16 +31,24 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        // KLJUČNA IZMENA: Proveravamo da li je userDetails instanca vaše User klase
+        // i direktno pristupamo roli. Ovo je mnogo pouzdanije.
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            extraClaims.put("role", user.getRole().name());
+        }
+
+        return generateToken(extraClaims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 sata
-                // ISPRAVKA za v0.12.x: Metoda signWith sada prima samo ključ.
+                .claims(extraClaims) // Koristimo .claims() metodu za v0.12+
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 sata
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -70,3 +79,4 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
+

@@ -1,6 +1,8 @@
 package com.ftn.sbnz.rules.cep;
 
 import com.ftn.sbnz.model.events.PotentialCorrectionEvent;
+import com.ftn.sbnz.model.events.HotspotAlertFired; // Importujemo kontrolnu činjenicu
+import com.ftn.sbnz.model.models.NotificationRequest;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,17 +25,26 @@ rule "Suggest Fact Update"
             collectList($e)
         )
         eval(com.ftn.sbnz.model.utils.CepHelper.hasEnoughUsersForCorrection($events))
+
+        not HotspotAlertFired(
+            mineralId == $mineralId,
+            location == $location,
+            attributeValue == $reportedValue
+        )
     then
         System.out.println("*****************************************************************");
         System.out.println("!!! UPOZORENJE ADMINISTRATORU: PREDLOG ZA KOREKCIJU PODATAKA !!!");
         System.out.println("Mineral: " + $trigger.getMineralName());
         System.out.println("Lokacija: " + $trigger.getLocation());
-        System.out.println("Stara vrednost (iz baze): " + $trigger.getDatabaseValue());
         System.out.println("Nova, prijavljena vrednost: " + $trigger.getReportedValue());
         System.out.println("Broj prijava: " + $events.size());
         System.out.println("*****************************************************************");
 
-        for(Object event : $events){
-            drools.delete(event);
-        }
+        String message = String.format(
+            "Predlog za korekciju: Za mineral '%s' na lokaciji '%s', korisnici prijavljuju tip stene '%s'.",
+            $trigger.getMineralName(), $trigger.getLocation(), $trigger.getReportedValue()
+        );
+        drools.insert(new NotificationRequest(message));
+
+        drools.insert(new HotspotAlertFired($trigger.getMineralId(), $trigger.getLocation(), $trigger.getReportedValue()));
 end

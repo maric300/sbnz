@@ -53,4 +53,42 @@ export class AuthService {
       return null
     }
   }
+
+  getUserRole(): string | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+    try {
+      // Dekodiramo payload (drugi deo tokena)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role || null;
+
+    } catch (e) {
+      console.error('Error decoding token', e);
+      return null;
+    }
+  }
+
+  getUserEmail(): string | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+    try {
+      // Dekodiramo payload (drugi deo tokena)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log(payload);
+      return payload.sub || null;
+
+    } catch (e) {
+      console.error('Error decoding token', e);
+      return null;
+    }
+  }
+
+  // NOVA METODA: Proverava da li je korisnik admin
+  isAdmin(): boolean {
+    return this.getUserRole() === 'ADMIN';
+  }
 }

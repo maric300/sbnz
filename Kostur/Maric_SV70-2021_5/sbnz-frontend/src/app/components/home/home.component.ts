@@ -12,6 +12,7 @@ import {IdentificationResult} from "../../models/identificaion.result";
 import {Mineral} from "../../models/mineral";
 import {Transparency} from "../../enums/transparency";
 import {Luster} from "../../enums/luster";
+import {NotificationService} from "../../services/notification.service";
 
 @Component({
   selector: 'app-home',
@@ -24,11 +25,15 @@ export class HomeComponent {
   http = inject(HttpClient);
   router = inject(Router);
   authService = inject(AuthService);
+  notificationService = inject(NotificationService);
   apiBaseUrl = 'http://localhost:8080/api';
+
 
   activeTab = signal<'identification' | 'hierarchy'>('identification');
   isLoading = signal(false);
   error = signal<string | null>(null);
+  userEmail = signal<string | null>(null);
+
 
   // Koristimo nove klase za modele formi
   idSample = new IdentificationSample();
@@ -40,6 +45,15 @@ export class HomeComponent {
 
   identificationResults = signal<IdentificationResult[]>([]);
   hierarchyResults = signal<Mineral[]>([]);
+
+  ngOnInit(): void {
+    this.userEmail.set(this.authService.getUserEmail());
+    // Kada se komponenta učita, ako je korisnik admin,
+    // odmah dohvatamo broj nepročitanih notifikacija.
+    if (this.authService.isAdmin()) {
+      this.notificationService.fetchUnreadCount().subscribe();
+    }
+  }
 
   submitIdentification(): void {
     this.isLoading.set(true);
@@ -83,5 +97,10 @@ export class HomeComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  goToNotifications(): void {
+    // Morate kreirati ovu rutu i komponentu
+    this.router.navigate(['/notifications']);
   }
 }

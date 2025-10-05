@@ -1,6 +1,12 @@
 -- Brisanje postojećih podataka da bi se izbegli duplikati pri svakom pokretanju
 DELETE FROM mineral_hierarchy;
 DELETE FROM mineral;
+--DELETE FROM users;
+--DELETE FROM notification;
+
+--INSERT INTO public.users(id, email, password, role) VALUES
+    --(gen_random_uuid(), 'admin@mineral.com', '$2a$10$YcGSblI4aWfPhuXkaVPpDueqouKYSwnjXiv8ZAJJNRFliO1gxHChS', 'ADMIN');
+
 
 -- Ubacivanje podataka u tabelu MINERAL koristeći navedeni templejt
 INSERT INTO public.mineral(id, accessibility, colors, difficulty, hardness_max, hardness_min, locations, luster, name, rock_types, streak_color, transparency) VALUES

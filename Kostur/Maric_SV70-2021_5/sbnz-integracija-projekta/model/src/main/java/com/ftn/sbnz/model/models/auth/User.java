@@ -1,5 +1,6 @@
 package com.ftn.sbnz.model.models.auth;
 
+import com.ftn.sbnz.model.enums.Role;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
     // Konstruktori, Getteri i Setteri
     public User() {}
 
@@ -29,6 +34,8 @@ public class User implements UserDetails {
     public void setId(UUID id) { this.id = id; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
     // --- Metode iz UserDetails interfejsa ---
     @Override
