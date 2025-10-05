@@ -1,0 +1,63 @@
+<div class="bg-gray-900 text-white min-h-screen font-sans">
+  <div class="flex">
+
+    <aside class="w-64 p-4 sticky top-0 h-screen">
+      <app-mineral-list></app-mineral-list>
+    </aside>
+
+    <main class="flex-1 p-4 sm:p-8">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-4xl sm:text-5xl font-bold text-teal-400">Detalji o Mineralu</h1>
+          <button (click)="goBack()" class="text-teal-400 hover:text-teal-300 font-semibold transition-colors">
+            &larr; Nazad na Pretragu
+          </button>
+        </div>
+
+        @if (isLoading()) {
+          <p class="text-gray-400">Učitavam detalje...</p>
+        } @else if (error()) {
+          <p class="text-red-500">{{ error() }}</p>
+        } @else if (mineral()) {
+          <div class="bg-gray-800 p-6 rounded-lg shadow-lg space-y-6 animate-fade-in">
+            <h2 class="text-3xl font-bold text-white">{{ mineral()!.name }}</h2>
+
+            <div>
+              <h3 class="text-xl font-semibold text-teal-300 mb-3 border-b border-gray-700 pb-2">Karakteristike</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Boja(e)</span><span class="font-semibold">{{ mineral()!.colors.join(', ') }}</span></div>
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Prozirnost</span><span class="font-semibold">{{ mineral()!.transparency }}</span></div>
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Sjaj</span><span class="font-semibold">{{ mineral()!.luster }}</span></div>
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Tvrdoća</span><span class="font-semibold">{{ mineral()!.hardnessMin }} - {{ mineral()!.hardnessMax }}</span></div>
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Boja ogreba</span><span class="font-semibold">{{ mineral()!.streakColor }}</span></div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-semibold text-teal-300 mb-3 border-b border-gray-700 pb-2">Nalazišta i Uslovi</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Lokacije</span><span class="font-semibold">{{ mineral()!.locations.join(', ') }}</span></div>
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Tipovi stena</span><span class="font-semibold">{{ mineral()!.rockTypes.join(', ') }}</span></div>
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Pristupačnost</span><span class="font-semibold">{{ mineral()!.accessibility }}</span></div>
+                <div class="bg-gray-700 p-3 rounded-lg"><span class="block text-gray-400">Težina pronalaska</span><span class="font-semibold">{{ mineral()!.difficulty }}</span></div>
+              </div>
+            </div>
+
+            @if (mineral()!.seasonalTips && mineral()!.seasonalTips.length > 0) {
+              <div>
+                <h3 class="text-xl font-semibold text-teal-300 mb-3 border-b border-gray-700 pb-2">Sezonski Saveti</h3>
+                <div class="space-y-3">
+                  @for (tip of mineral()!.seasonalTips; track tip.id) {
+                    <div class="bg-teal-900/50 border border-teal-800 p-3 rounded-lg text-sm">
+                      <p><strong class="text-teal-400">{{ tip.location }}:</strong> {{ tip.tipMessage }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </main>
+  </div>
+</div>
