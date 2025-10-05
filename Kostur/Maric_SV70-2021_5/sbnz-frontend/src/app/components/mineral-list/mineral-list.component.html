@@ -1,0 +1,18 @@
+<div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg border border-gray-700 h-full">
+  <h3 class="text-lg font-semibold text-teal-300 mb-4">Svi Minerali</h3>
+  @if (isLoading()) {
+    <p class="text-gray-400">Učitavam listu...</p>
+  }
+  <ul class="space-y-2 max-h-[80vh] overflow-y-auto">
+    @for (mineral of minerals(); track mineral.id) {
+      <li>
+        <a
+          [routerLink]="['/mineral', mineral.id]"
+          routerLinkActive="bg-teal-500 text-white font-semibold"
+          class="block p-2 rounded-md hover:bg-gray-700 transition-colors text-gray-300 hover:text-white">
+          {{ mineral.name }}
+        </a>
+      </li>
+    }
+  </ul>
+</div>
