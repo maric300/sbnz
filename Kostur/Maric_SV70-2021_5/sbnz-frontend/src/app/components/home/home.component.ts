@@ -32,6 +32,8 @@ export class HomeComponent {
   activeTab = signal<'identification' | 'hierarchy'>('identification');
   isLoading = signal(false);
   error = signal<string | null>(null);
+  userEmail = signal<string | null>(null);
+
 
   // Koristimo nove klase za modele formi
   idSample = new IdentificationSample();
@@ -45,6 +47,7 @@ export class HomeComponent {
   hierarchyResults = signal<Mineral[]>([]);
 
   ngOnInit(): void {
+    this.userEmail.set(this.authService.getUserEmail());
     // Kada se komponenta učita, ako je korisnik admin,
     // odmah dohvatamo broj nepročitanih notifikacija.
     if (this.authService.isAdmin()) {
