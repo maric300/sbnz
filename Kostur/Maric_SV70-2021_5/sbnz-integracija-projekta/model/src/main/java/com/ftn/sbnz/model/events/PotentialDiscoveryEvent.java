@@ -19,14 +19,14 @@ public class PotentialDiscoveryEvent implements Serializable {
 
     private String mineralName;
     private String location;
-    private Long userId;
+    private UUID userId;
 
     public PotentialDiscoveryEvent() {
         this.timestamp = new Date();
     }
 
     // ISPRAVKA: Konstruktor sada prihvata UUID
-    public PotentialDiscoveryEvent(UUID mineralId, String mineralName, String location, Long userId) {
+    public PotentialDiscoveryEvent(UUID mineralId, String mineralName, String location, UUID userId) {
         this.timestamp = new Date();
         this.mineralId = mineralId;
         this.mineralName = mineralName;
@@ -44,6 +44,6 @@ public class PotentialDiscoveryEvent implements Serializable {
     public void setMineralName(String mineralName) { this.mineralName = mineralName; }
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public UUID getUserId() { return userId; }
+    public void setUserId(UUID userId) { this.userId = userId; }
 }

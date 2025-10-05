@@ -1,0 +1,5 @@
+export enum Transparency {
+  TRANSPARENT = 'TRANSPARENT',
+  TRANSLUCENT = 'TRANSLUCENT',
+  OPAQUE = 'OPAQUE'
+}

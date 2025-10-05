@@ -1,0 +1,35 @@
+package com.ftn.sbnz.rules.cep;
+
+import com.ftn.sbnz.model.events.PotentialCorrectionEvent;
+import java.util.List;
+
+rule "Suggest Fact Update"
+no-loop true
+when
+    // 1. Sakupljamo listu događaja u prozoru od 90 dana
+    $events: List(size >= 10) from accumulate (
+    $e: PotentialCorrectionEvent() over window:time(90d),
+    collectList($e)
+    )
+
+    // 2. Proveravamo da li je obrazac validan koristeći pomoćnu metodu
+    Boolean(booleanValue == true) from com.ftn.sbnz.model.utils.CepHelper.isValidCorrectionPattern($events)
+then
+    PotentialCorrectionEvent firstEvent = (PotentialCorrectionEvent) $events.get(0);
+    System.out.println("*****************************************************************");
+    System.out.println("!!! UPOZORENJE ADMINISTRATORU: PREDLOG ZA KOREKCIJU PODATAKA !!!");
+    System.out.println("Mineral: " + firstEvent.getMineralName());
+    System.out.println("Lokacija: " + firstEvent.getLocation());
+    System.out.println("Atribut: " + firstEvent.getAttributeName());
+    System.out.println("-----------------------------------------------------------------");
+    System.out.println("Stara vrednost (iz baze): " + firstEvent.getDatabaseValue());
+    System.out.println("Nova, prijavljena vrednost: " + firstEvent.getReportedValue());
+    System.out.println("-----------------------------------------------------------------");
+    System.out.println("Broj prijava u poslednjih 90 dana: " + $events.size());
+    System.out.println("*****************************************************************");
+
+    // Za sada, samo brišemo događaje da se pravilo ne bi ponovo aktiviralo.
+    for(Object event : $events){
+    drools.delete(event);
+    }
+end

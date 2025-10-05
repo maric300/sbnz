@@ -4,8 +4,10 @@ import com.ftn.sbnz.model.models.Mineral;
 import com.ftn.sbnz.model.models.Sample;
 import com.ftn.sbnz.model.models.IdentificationResult;
 import com.ftn.sbnz.model.events.PotentialDiscoveryEvent;
+import com.ftn.sbnz.model.events.PotentialCorrectionEvent;
 import org.kie.api.runtime.KieSession; // Importujemo KieSession
 import java.util.List;
+import java.util.UUID;
 
 global java.util.List results;
 global KieSession cepSession;
@@ -75,6 +77,30 @@ rule "Mark Primary Candidate and Add Location Bonus"
         };
 end
 
+rule "Generate Potential Correction Event"
+    salience -5
+    when
+        $s: Sample(location != null, $rt: rockType != null, $userId: userId != null)
+        $r: IdentificationResult(
+            primaryCandidate == true,
+            $m: mineral,
+            score > 60
+        )
+        Mineral(
+            this == $m,
+            rockTypes not contains $rt
+        )
+    then
+        System.out.println("--- DETEKTOVANA NEPODUDARNOST PODATAKA (VISOKA POUZDANOST) ---");
+        String dbValue = $m.getRockTypes().isEmpty() ? "N/A" : (String) $m.getRockTypes().get(0);
+
+        if (cepSession != null) {
+            cepSession.insert(new PotentialCorrectionEvent(
+                $m.getId(), $m.getName(), $s.getLocation(), dbValue, $s.getRockType(), (UUID)$userId
+            ));
+        }
+end
+
 rule "Set Message for Standard Identification"
     salience -10
     when
@@ -88,7 +114,7 @@ end
 rule "Detect Potential New Discovery"
     salience -20
     when
-        $s: Sample($loc: location)
+        $s: Sample($loc: location, $userId: userId != null)
         $r: IdentificationResult(
             primaryCandidate == false,
             $m: mineral,
@@ -98,8 +124,10 @@ rule "Detect Potential New Discovery"
         modify($r) {
             setMessage("Vaš uzorak se po karakteristikama savršeno poklapa sa mineralom " + $m.getName() + ", koji do sada nije bio dokumentovan na području " + $loc + ". Ovo bi moglo predstavljati novo nalazište.")
         };
-        long mockUserId = (long) (Math.random() * 100);
-        cepSession.insert(new PotentialDiscoveryEvent($m.getId(), $m.getName(), $loc, mockUserId));
+
+        if (cepSession != null) {
+            cepSession.insert(new PotentialDiscoveryEvent($m.getId(), $m.getName(), $loc, (UUID)$userId));
+        }
 end
 
 rule "Calculate Percentage"

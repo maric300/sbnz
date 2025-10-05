@@ -1,0 +1,130 @@
+<div class="bg-gray-900 text-white min-h-screen font-sans p-4 sm:p-8">
+  <div class="max-w-4xl mx-auto">
+    <header class="text-center mb-10 relative">
+      <h1 class="text-4xl sm:text-5xl font-bold text-teal-400">Mineral Explorer</h1>
+      <p class="text-gray-400 mt-2">Identifikujte minerale i istražite njihove hijerarhije.</p>
+
+      <!-- Logout Dugme -->
+      <button
+        (click)="logout()"
+        class="absolute top-0 right-0 mt-2 mr-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 text-sm">
+        Logout
+      </button>
+    </header>
+
+    <!-- Tab Navigacija -->
+    <div class="flex justify-center border-b border-gray-700 mb-8">
+      <button
+        (click)="activeTab.set('identification')"
+        [class.bg-teal-500]="activeTab() === 'identification'"
+        [class.text-white]="activeTab() === 'identification'"
+        class="px-6 py-3 font-semibold rounded-t-lg transition-colors duration-300 hover:bg-gray-700">
+        Identification
+      </button>
+      <button
+        (click)="activeTab.set('hierarchy')"
+        [class.bg-teal-500]="activeTab() === 'hierarchy'"
+        [class.text-white]="activeTab() === 'hierarchy'"
+        class="px-6 py-3 font-semibold rounded-t-lg transition-colors duration-300 hover:bg-gray-700">
+        Hierarchy Search
+      </button>
+    </div>
+
+    <!-- Kontejner za tabove -->
+    <main>
+      <!-- Identification Tab -->
+      @if (activeTab() === 'identification') {
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h2 class="text-2xl font-semibold mb-6 text-teal-300">Pronađi Mineral Po Karakteristikama</h2>
+          <form (ngSubmit)="submitIdentification()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Polja za unos -->
+              <input [(ngModel)]="idSample.location" name="location" placeholder="Lokacija (npr. Zlatibor)" class="input-style">
+              <input [(ngModel)]="idSample.color" name="color" placeholder="Boja (npr. green)" class="input-style">
+              <select [(ngModel)]="idSample.transparency" name="transparency" class="input-style">
+                <option value="" disabled>Prozirnost</option>
+                @for (option of transparencyOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+              <select [(ngModel)]="idSample.luster" name="luster" class="input-style">
+                <option value="" disabled>Sjaj</option>
+                @for (option of lusterOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+              <input [(ngModel)]="idSample.rockType" name="rockType" placeholder="Tip stene (npr. serpentinite)" class="input-style">
+            </div>
+            <button type="submit" class="submit-button mt-6 w-full" [disabled]="isLoading()">
+              {{ isLoading() ? 'Identifikujem...' : 'Identifikuj' }}
+            </button>
+          </form>
+        </div>
+      }
+
+      <!-- Hierarchy Search Tab -->
+      @if (activeTab() === 'hierarchy') {
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h2 class="text-2xl font-semibold mb-6 text-teal-300">Pronađi Minerale Po Grupi i Lokaciji</h2>
+          <form (ngSubmit)="submitHierarchySearch()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <input [(ngModel)]="hierarchyQuery.mineralGroup" name="mineralGroup" placeholder="Grupa minerala (npr. Kvarc)" class="input-style">
+              <input [(ngModel)]="hierarchyQuery.location" name="location" placeholder="Lokacija (npr. Fruška gora)" class="input-style">
+            </div>
+            <button type="submit" class="submit-button mt-6 w-full" [disabled]="isLoading()">
+              {{ isLoading() ? 'Pretražujem...' : 'Pretraži' }}
+            </button>
+          </form>
+        </div>
+      }
+
+      <!-- Prikaz Rezultata -->
+      <div class="mt-10">
+        @if (isLoading()) {
+          <div class="text-center text-gray-400">Učitavam...</div>
+        }
+        @if (error()) {
+          <div class="bg-red-900 border border-red-700 text-red-300 px-4 py-3 rounded-lg relative" role="alert">
+            <strong class="font-bold">Greška!</strong>
+            <span class="block sm:inline">{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Rezultati identifikacije -->
+        @if (activeTab() === 'identification' && identificationResults().length > 0) {
+          <div>
+            <h3 class="text-2xl font-semibold mb-4 text-teal-300">Rezultati Identifikacije:</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              @for (result of identificationResults(); track result.mineral.id) {
+                <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 shadow-md">
+                  <h4 class="font-bold text-lg text-teal-400">{{ result.mineral.name }}</h4>
+                  <p class="text-sm text-gray-400" [class.text-yellow-400]="result.primaryCandidate">
+                    {{ result.primaryCandidate ? 'Primarni kandidat' : 'Sekundarni kandidat' }}
+                  </p>
+                  <div class="mt-2 text-sm">
+                    <p><strong>Skor:</strong> {{ result.score }}</p>
+                    <p><strong>Poklapanje:</strong> {{ result.matchPercentage.toFixed(2) }}%</p>
+                  </div>
+                  <p class="mt-3 text-xs bg-gray-700 p-2 rounded">{{ result.message }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Rezultati pretrage hijerarhije -->
+        @if (activeTab() === 'hierarchy' && hierarchyResults().length > 0) {
+          <div>
+            <h3 class="text-2xl font-semibold mb-4 text-teal-300">Pronađeni Minerali:</h3>
+            <ul class="bg-gray-800 rounded-lg p-4 border border-gray-700 shadow-md">
+              @for (mineral of hierarchyResults(); track mineral.id) {
+                <li class="py-2 border-b border-gray-700 last:border-b-0">{{ mineral.name }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </main>
+  </div>
+</div>
+
