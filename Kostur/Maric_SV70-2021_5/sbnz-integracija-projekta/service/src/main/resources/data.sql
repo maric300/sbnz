@@ -1,5 +1,7 @@
 -- Brisanje postojećih podataka da bi se izbegli duplikati pri svakom pokretanju
 DELETE FROM mineral_hierarchy;
+DELETE FROM seasonal_tip;
+
 DELETE FROM mineral;
 --DELETE FROM users;
 --DELETE FROM notification;

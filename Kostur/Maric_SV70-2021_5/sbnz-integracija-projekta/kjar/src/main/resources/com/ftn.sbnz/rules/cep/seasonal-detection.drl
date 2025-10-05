@@ -2,6 +2,8 @@ package com.ftn.sbnz.rules.cep;
 
 import com.ftn.sbnz.model.events.FindingEvent;
 import com.ftn.sbnz.model.models.CreateSeasonalTipRequest;
+import com.ftn.sbnz.model.utils.CepHelper;
+import com.ftn.sbnz.model.utils.CepHelper.SeasonalSpikeResult;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +13,7 @@ import java.util.UUID;
 import java.util.HashMap;
 
 dialect "mvel"
+
 declare SeasonalTipGenerated
     mineralId : UUID
     location : String
@@ -23,6 +26,7 @@ rule "Identify Seasonal Finding Spike"
             $mineralId: mineralId,
             $location: location
         )
+        // AŽURIRANI 'accumulate': Sada broji pronalaske za svaki mesec (0-11)
         $analysis: Map() from accumulate (
             $event: FindingEvent(
                 mineralId == $mineralId,
@@ -31,46 +35,37 @@ rule "Identify Seasonal Finding Spike"
 
             init(
                 Map data = new HashMap();
-                data.put("peakCount", 0.0);
-                data.put("offPeakCount", 0.0);
+                Map counts = new HashMap();
+                for (int i=0; i<12; i++) { counts.put(i, 0.0); };
+                data.put("monthlyCounts", counts);
                 data.put("years", new HashSet());
-                // ISPRAVKA: Uklonjena 'return data;' naredba.
-                // Poslednji izraz se implicitno vraća.
                 data;
             ),
-
             action(
                 Calendar cal = Calendar.getInstance();
                 cal.setTime($event.getTimestamp());
                 int month = cal.get(Calendar.MONTH);
-                if (month == Calendar.SEPTEMBER || month == Calendar.OCTOBER) {
-                    data.put("peakCount", (Double)data.get("peakCount") + 1.0);
-                } else {
-                    data.put("offPeakCount", (Double)data.get("offPeakCount") + 1.0);
-                }
+                Map counts = (Map)data.get("monthlyCounts");
+                counts.put(month, (Double)counts.get(month) + 1.0);
                 ((Set)data.get("years")).add(cal.get(Calendar.YEAR));
             ),
-
             result(
-                int yearCount = ((Set)data.get("years")).size();
-                if (yearCount > 0) {
-                    data.put("peakAvg", (Double)data.get("peakCount") / (2.0 * yearCount));
-                    double offPeakMonths = 10.0 * yearCount;
-                    data.put("offPeakAvg", (offPeakMonths > 0) ? (Double)data.get("offPeakCount") / offPeakMonths : 0.0);
-                }
-                // ISPRAVKA: Koristimo ispravnu sintaksu sa tačka-zarezom.
                 data;
             )
         )
 
-        eval(com.ftn.sbnz.model.utils.CepHelper.isSeasonalSpike($analysis))
+        // AŽURIRAN USLOV: Pozivamo novu 'findSeasonalSpike' metodu i hvatamo rezultat
+        $spikeResult: SeasonalSpikeResult(spike == true, $seasonName: seasonName) from CepHelper.findSeasonalSpike($analysis)
+
         not SeasonalTipGenerated(mineralId == $mineralId, location == $location)
     then
         System.out.println("$$$ DETEKTOVAN SEZONSKI OBRAZAC! $$$");
+
         String message = String.format(
-            "Podaci pokazuju da se ovaj mineral na lokaciji '%s' značajno češće pronalazi tokom septembra i oktobra.",
-            $location
+            "Podaci pokazuju da se ovaj mineral na lokaciji '%s' značajno češće pronalazi tokom %s.",
+            $location, $seasonName
         );
+
         drools.insert(new CreateSeasonalTipRequest($mineralId, $location, message));
         drools.insert(new SeasonalTipGenerated($mineralId, $location));
 end

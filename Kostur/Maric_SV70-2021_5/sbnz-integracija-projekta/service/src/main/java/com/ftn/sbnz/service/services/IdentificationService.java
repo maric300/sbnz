@@ -81,6 +81,8 @@ public class IdentificationService implements IIdentificationService {
         }
     }
 
+
+
     private synchronized void handleSeasonalTipRequests() {
         Collection<FactHandle> handles = cepKieSession.getFactHandles(object -> object instanceof CreateSeasonalTipRequest);
         if (handles.isEmpty()) return;
@@ -124,7 +126,7 @@ public class IdentificationService implements IIdentificationService {
 
 
     private void triggerSeasonalPatternTest() {
-        System.out.println("--- POKRENUT SEZONSKI TEST ---");
+        System.out.println("--- POKRENUT DINAMIČKI SEZONSKI TEST ---");
 
         Mineral amethyst = getMineralDatabase().stream()
                 .filter(m -> "Amethyst (Quartz)".equals(m.getName()))
@@ -137,31 +139,33 @@ public class IdentificationService implements IIdentificationService {
 
         Calendar cal = Calendar.getInstance();
 
-        // Generišemo 10 događaja u sezoni (sept/okt) prošle godine
-        for (int i = 0; i < 10; i++) {
-            cal.set(2024, Calendar.SEPTEMBER, 15);
+        // --- PODACI ZA 2024. GODINU ---
+        // Generišemo 15 događaja na PROLEĆE (mart, april, maj)
+        for (int i = 0; i < 15; i++) {
+            cal.set(2024, Calendar.APRIL, 15);
             cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
         }
-
-        // Generišemo 2 događaja van sezone prošle godine
-        cal.set(2024, Calendar.MAY, 10);
+        // Generišemo samo 3 događaja van proleća
+        cal.set(2024, Calendar.JANUARY, 10);
         cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
         cal.set(2024, Calendar.JULY, 20);
         cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
+        cal.set(2024, Calendar.NOVEMBER, 1);
+        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
 
-        // Generišemo 12 događaja u sezoni (sept/okt) pretprošle godine
-        for (int i = 0; i < 12; i++) {
-            cal.set(2023, Calendar.OCTOBER, 5);
+        // --- PODACI ZA 2023. GODINU ---
+        // Generišemo 18 događaja na PROLEĆE
+        for (int i = 0; i < 18; i++) {
+            cal.set(2023, Calendar.MAY, 5);
             cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
         }
+        // Generišemo samo 2 događaja van proleća
+        cal.set(2023, Calendar.AUGUST, 1);
+        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
+        cal.set(2023, Calendar.DECEMBER, 25);
+        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
 
-        // Generišemo 3 događaja van sezone pretprošle godine
-        for (int i = 0; i < 3; i++) {
-            cal.set(2023, Calendar.MARCH, 1);
-            cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
-        }
-
-        // Konačno, ubacujemo jedan događaj u "sadašnjosti" da bi se pravilo aktiviralo
+        // Okidač u "sadašnjosti"
         cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora"));
 
         System.out.println("--- Lažni podaci ubačeni. Pokrećem CEP pravila. ---");
