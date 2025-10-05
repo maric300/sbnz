@@ -1,8 +1,15 @@
 <div class="bg-gray-900 text-white min-h-screen font-sans p-4 sm:p-8">
   <div class="max-w-4xl mx-auto">
-    <header class="text-center mb-10">
+    <header class="text-center mb-10 relative">
       <h1 class="text-4xl sm:text-5xl font-bold text-teal-400">Mineral Explorer</h1>
       <p class="text-gray-400 mt-2">Identifikujte minerale i istražite njihove hijerarhije.</p>
+
+      <!-- Logout Dugme -->
+      <button
+        (click)="logout()"
+        class="absolute top-0 right-0 mt-2 mr-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 text-sm">
+        Logout
+      </button>
     </header>
 
     <!-- Tab Navigacija -->
@@ -47,7 +54,6 @@
                 }
               </select>
               <input [(ngModel)]="idSample.rockType" name="rockType" placeholder="Tip stene (npr. serpentinite)" class="input-style">
-              <input [(ngModel)]="idSample.userId" name="userId" type="number" placeholder="User ID (za testiranje CEP-a)" class="input-style">
             </div>
             <button type="submit" class="submit-button mt-6 w-full" [disabled]="isLoading()">
               {{ isLoading() ? 'Identifikujem...' : 'Identifikuj' }}
@@ -121,3 +127,4 @@
     </main>
   </div>
 </div>
+
