@@ -2,6 +2,7 @@
 DELETE FROM mineral_hierarchy;
 DELETE FROM mineral;
 --DELETE FROM users;
+--DELETE FROM notification;
 
 --INSERT INTO public.users(id, email, password, role) VALUES
     --(gen_random_uuid(), 'admin@mineral.com', '$2a$10$YcGSblI4aWfPhuXkaVPpDueqouKYSwnjXiv8ZAJJNRFliO1gxHChS', 'ADMIN');
