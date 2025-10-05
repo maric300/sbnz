@@ -2,34 +2,38 @@ package com.ftn.sbnz.rules.cep;
 
 import com.ftn.sbnz.model.events.PotentialCorrectionEvent;
 import java.util.List;
+import java.util.UUID;
 
 rule "Suggest Fact Update"
-no-loop true
-when
-    // 1. Sakupljamo listu događaja u prozoru od 90 dana
-    $events: List(size >= 10) from accumulate (
-    $e: PotentialCorrectionEvent() over window:time(90d),
-    collectList($e)
-    )
+    no-loop true
+    when
+        $trigger: PotentialCorrectionEvent(
+            $mineralId: mineralId,
+            $location: location,
+            $attrName: attributeName,
+            $reportedValue: reportedValue
+        )
+        $events: List(size >= 10) from accumulate (
+            $e: PotentialCorrectionEvent(
+                mineralId == $mineralId,
+                location == $location,
+                attributeName == $attrName,
+                reportedValue == $reportedValue
+            ) over window:time(90d),
+            collectList($e)
+        )
+        eval(com.ftn.sbnz.model.utils.CepHelper.hasEnoughUsersForCorrection($events))
+    then
+        System.out.println("*****************************************************************");
+        System.out.println("!!! UPOZORENJE ADMINISTRATORU: PREDLOG ZA KOREKCIJU PODATAKA !!!");
+        System.out.println("Mineral: " + $trigger.getMineralName());
+        System.out.println("Lokacija: " + $trigger.getLocation());
+        System.out.println("Stara vrednost (iz baze): " + $trigger.getDatabaseValue());
+        System.out.println("Nova, prijavljena vrednost: " + $trigger.getReportedValue());
+        System.out.println("Broj prijava: " + $events.size());
+        System.out.println("*****************************************************************");
 
-    // 2. Proveravamo da li je obrazac validan koristeći pomoćnu metodu
-    Boolean(booleanValue == true) from com.ftn.sbnz.model.utils.CepHelper.isValidCorrectionPattern($events)
-then
-    PotentialCorrectionEvent firstEvent = (PotentialCorrectionEvent) $events.get(0);
-    System.out.println("*****************************************************************");
-    System.out.println("!!! UPOZORENJE ADMINISTRATORU: PREDLOG ZA KOREKCIJU PODATAKA !!!");
-    System.out.println("Mineral: " + firstEvent.getMineralName());
-    System.out.println("Lokacija: " + firstEvent.getLocation());
-    System.out.println("Atribut: " + firstEvent.getAttributeName());
-    System.out.println("-----------------------------------------------------------------");
-    System.out.println("Stara vrednost (iz baze): " + firstEvent.getDatabaseValue());
-    System.out.println("Nova, prijavljena vrednost: " + firstEvent.getReportedValue());
-    System.out.println("-----------------------------------------------------------------");
-    System.out.println("Broj prijava u poslednjih 90 dana: " + $events.size());
-    System.out.println("*****************************************************************");
-
-    // Za sada, samo brišemo događaje da se pravilo ne bi ponovo aktiviralo.
-    for(Object event : $events){
-    drools.delete(event);
-    }
+        for(Object event : $events){
+            drools.delete(event);
+        }
 end
