@@ -31,8 +31,14 @@ public class IdentificationService implements IIdentificationService {
     }
 
     public List<IdentificationResult> identifyMineral(Sample sample) {
-        if ("sezonski-test".equalsIgnoreCase(sample.getLocation())) {
-            triggerSeasonalPatternTest();
+        // --- DEO ZA TESTIRANJE ---
+        // Ako je uneta specijalna komanda, pokrećemo odgovarajuću debug metodu.
+        if ("load-autumn-test".equalsIgnoreCase(sample.getLocation())) {
+            loadAutumnSpikeData();
+            return new ArrayList<>(); // Vraćamo praznu listu, jer je ovo bio samo test
+        }
+        if ("load-spring-test".equalsIgnoreCase(sample.getLocation())) {
+            loadSpringSpikeData();
             return new ArrayList<>();
         }
 
@@ -70,10 +76,8 @@ public class IdentificationService implements IIdentificationService {
     private synchronized void handleNotificationRequests() {
         Collection<FactHandle> handles = cepKieSession.getFactHandles(object -> object instanceof NotificationRequest);
         if (handles.isEmpty()) return;
-        List<NotificationRequest> requestsToProcess = new ArrayList<>();
-        for (FactHandle handle : handles) {
-            requestsToProcess.add((NotificationRequest) cepKieSession.getObject(handle));
-        }
+        List<NotificationRequest> requestsToProcess = new ArrayList<>(handles.stream().map(h -> (NotificationRequest)cepKieSession.getObject(h)).toList());
+
         System.out.println("Pronađeno " + requestsToProcess.size() + " zahteva za notifikacijom.");
         for (NotificationRequest request : requestsToProcess) {
             notificationService.createNotificationForAllAdmins(request.getMessage());
@@ -81,25 +85,15 @@ public class IdentificationService implements IIdentificationService {
         }
     }
 
-
-
     private synchronized void handleSeasonalTipRequests() {
         Collection<FactHandle> handles = cepKieSession.getFactHandles(object -> object instanceof CreateSeasonalTipRequest);
         if (handles.isEmpty()) return;
-
-        List<CreateSeasonalTipRequest> requestsToProcess = new ArrayList<>();
-        for (FactHandle handle : new ArrayList<>(handles)) {
-            requestsToProcess.add((CreateSeasonalTipRequest) cepKieSession.getObject(handle));
-            cepKieSession.delete(handle);
-        }
+        List<CreateSeasonalTipRequest> requestsToProcess = new ArrayList<>(handles.stream().map(h -> (CreateSeasonalTipRequest)cepKieSession.getObject(h)).toList());
 
         System.out.println("Pronađeno " + requestsToProcess.size() + " zahteva za kreiranje sezonskog saveta.");
         for (CreateSeasonalTipRequest request : requestsToProcess) {
-            seasonalTipService.createSeasonalTip(
-                    request.getMineralId(),
-                    request.getLocation(),
-                    request.getMessage()
-            );
+            seasonalTipService.createSeasonalTip(request.getMineralId(), request.getLocation(), request.getMessage());
+            cepKieSession.delete(cepKieSession.getFactHandle(request));
         }
     }
 
@@ -124,53 +118,84 @@ public class IdentificationService implements IIdentificationService {
         }
     }
 
+    /**
+     * TEST METODA #1: Generiše lažne podatke za JESENJI skok za Opal.
+     */
+    private void loadAutumnSpikeData() {
+        System.out.println("--- POKRENUT TEST ZA JESENJI SKOK: Učitavam istorijske podatke za Opal... ---");
 
-    private void triggerSeasonalPatternTest() {
-        System.out.println("--- POKRENUT DINAMIČKI SEZONSKI TEST ---");
-
-        Mineral amethyst = getMineralDatabase().stream()
-                .filter(m -> "Amethyst (Quartz)".equals(m.getName()))
+        Mineral opal = getMineralDatabase().stream()
+                .filter(m -> "Opal".equals(m.getName()))
                 .findFirst().orElse(null);
 
-        if (amethyst == null) {
-            System.out.println("TEST GREŠKA: Ametist nije pronađen u bazi.");
+        if (opal == null) {
+            System.out.println("TEST GREŠKA: Opal nije pronađen u bazi.");
             return;
         }
 
         Calendar cal = Calendar.getInstance();
 
-        // --- PODACI ZA 2024. GODINU ---
-        // Generišemo 15 događaja na PROLEĆE (mart, april, maj)
+        // 2024. godina
+        for (int i = 0; i < 10; i++) {
+            cal.set(2024, Calendar.SEPTEMBER, 15);
+            cepKieSession.insert(new FindingEvent(opal.getId(), "Fruška Gora", cal.getTime()));
+        }
+        for (int i = 0; i < 2; i++) {
+            cal.set(2024, Calendar.MAY, 1);
+            cepKieSession.insert(new FindingEvent(opal.getId(), "Fruška Gora", cal.getTime()));
+        }
+
+        // 2023. godina
+        for (int i = 0; i < 12; i++) {
+            cal.set(2023, Calendar.OCTOBER, 5);
+            cepKieSession.insert(new FindingEvent(opal.getId(), "Fruška Gora", cal.getTime()));
+        }
+        for (int i = 0; i < 3; i++) {
+            cal.set(2023, Calendar.MARCH, 1);
+            cepKieSession.insert(new FindingEvent(opal.getId(), "Fruška Gora", cal.getTime()));
+        }
+
+        System.out.println("--- Istorijski podaci za Opal su ubačeni. Čeka se okidač. ---");
+    }
+
+    /**
+     * TEST METODA #2: Generiše lažne podatke za PROLEĆNI skok za Beril.
+     */
+    private void loadSpringSpikeData() {
+        System.out.println("--- POKRENUT TEST ZA PROLEĆNI SKOK: Učitavam istorijske podatke za Beril... ---");
+
+        Mineral beryl = getMineralDatabase().stream()
+                .filter(m -> "Beril (Akvamarin)".equals(m.getName()))
+                .findFirst().orElse(null);
+
+        if (beryl == null) {
+            System.out.println("TEST GREŠKA: Beril (Akvamarin) nije pronađen u bazi.");
+            return;
+        }
+
+        Calendar cal = Calendar.getInstance();
+
+        // 2024. godina
+        for (int i = 0; i < 20; i++) {
+            cal.set(2024, Calendar.APRIL, 10);
+            cepKieSession.insert(new FindingEvent(beryl.getId(), "Cer", cal.getTime()));
+        }
+        for (int i = 0; i < 4; i++) {
+            cal.set(2024, Calendar.AUGUST, 1);
+            cepKieSession.insert(new FindingEvent(beryl.getId(), "Cer", cal.getTime()));
+        }
+
+        // 2023. godina
         for (int i = 0; i < 15; i++) {
-            cal.set(2024, Calendar.APRIL, 15);
-            cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
+            cal.set(2023, Calendar.MAY, 20);
+            cepKieSession.insert(new FindingEvent(beryl.getId(), "Cer", cal.getTime()));
         }
-        // Generišemo samo 3 događaja van proleća
-        cal.set(2024, Calendar.JANUARY, 10);
-        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
-        cal.set(2024, Calendar.JULY, 20);
-        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
-        cal.set(2024, Calendar.NOVEMBER, 1);
-        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
-
-        // --- PODACI ZA 2023. GODINU ---
-        // Generišemo 18 događaja na PROLEĆE
-        for (int i = 0; i < 18; i++) {
-            cal.set(2023, Calendar.MAY, 5);
-            cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
+        for (int i = 0; i < 3; i++) {
+            cal.set(2023, Calendar.NOVEMBER, 5);
+            cepKieSession.insert(new FindingEvent(beryl.getId(), "Cer", cal.getTime()));
         }
-        // Generišemo samo 2 događaja van proleća
-        cal.set(2023, Calendar.AUGUST, 1);
-        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
-        cal.set(2023, Calendar.DECEMBER, 25);
-        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora", cal.getTime()));
 
-        // Okidač u "sadašnjosti"
-        cepKieSession.insert(new FindingEvent(amethyst.getId(), "Fruška gora"));
-
-        System.out.println("--- Lažni podaci ubačeni. Pokrećem CEP pravila. ---");
-        cepKieSession.fireAllRules();
-        handleSeasonalTipRequests();
+        System.out.println("--- Istorijski podaci za Beril su ubačeni. Čeka se okidač. ---");
     }
 
     @Override
