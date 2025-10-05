@@ -4,10 +4,12 @@ import com.ftn.sbnz.model.models.Mineral;
 import com.ftn.sbnz.model.models.MineralHierarchy;
 import com.ftn.sbnz.service.repositories.IMineralHierarchyRepository;
 import com.ftn.sbnz.service.repositories.IMineralRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class MineralService {
@@ -23,6 +25,11 @@ public class MineralService {
 
     public List<Mineral> findAllMinerals() {
         return mineralRepository.findAll();
+    }
+
+    public Mineral findById(UUID id) {
+        return mineralRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Mineral not found with id: " + id));
     }
 
     public List<MineralHierarchy> findAllHierarchyFacts() {
