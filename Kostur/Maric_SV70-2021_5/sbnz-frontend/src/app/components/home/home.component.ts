@@ -84,4 +84,9 @@ export class HomeComponent {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  goToNotifications(): void {
+    // Morate kreirati ovu rutu i komponentu
+    this.router.navigate(['/notifications']);
+  }
 }
