@@ -1,7 +1,7 @@
 <div class="bg-gray-800 bg-opacity-50 backdrop-blur-sm p-4 rounded-lg border border-gray-700 h-full">
-  <h3 class="text-lg font-semibold text-teal-300 mb-4">Svi Minerali</h3>
+  <h3 class="text-lg font-semibold text-teal-300 mb-4">Minerali</h3>
   @if (isLoading()) {
-    <p class="text-gray-400">Učitavam listu...</p>
+    <p class="text-gray-400">Loading...</p>
   }
   <ul class="space-y-2 max-h-[80vh] overflow-y-auto">
     @for (mineral of minerals(); track mineral.id) {
